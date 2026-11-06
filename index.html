@@ -120,8 +120,40 @@
       accent-color: var(--gold);
       cursor: pointer;
     }
-    .auto-row { display: flex; align-items: center; gap: 9px; font-size: 12px; }
-    .auto-row input { accent-color: var(--gold); }
+    .auto-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; cursor: pointer; }
+    .auto-row input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      clip-path: inset(50%);
+    }
+    .auto-switch {
+      position: relative;
+      flex: 0 0 auto;
+      width: 38px;
+      height: 22px;
+      border: 1px solid rgba(248, 242, 231, .28);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, .2);
+      transition: background .2s, border-color .2s;
+    }
+    .auto-switch::after {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #f8f2e7;
+      content: "";
+      transition: transform .2s;
+    }
+    .auto-row input:checked + .auto-switch { border-color: var(--gold); background: #8c7443; }
+    .auto-row input:checked + .auto-switch::after { transform: translateX(16px); }
+    .auto-row input:focus-visible + .auto-switch { outline: 2px solid var(--gold); outline-offset: 3px; }
     .setting-note { margin: 12px 0 0; color: rgba(248, 242, 231, .52); font-size: 10px; line-height: 1.5; }
 
     .book-wrap {
@@ -502,7 +534,7 @@
         </button>
         <section class="settings-panel" id="settingsPanel" aria-label="Настройки книги">
           <h2 class="settings-title">Ритм этой книги</h2>
-          <label class="auto-row"><input id="autoFlip" type="checkbox" checked> Автоматически перелистывать</label>
+          <label class="auto-row"><span>Автоматически перелистывать</span><input id="autoFlip" type="checkbox" role="switch" aria-label="Автоматически перелистывать"><span class="auto-switch" aria-hidden="true"></span></label>
           <div class="setting">
             <div class="setting-head"><label for="interval">Время на страницу</label><span class="setting-value" id="intervalValue">8 сек</span></div>
             <input id="interval" type="range" min="4" max="20" value="8">
@@ -511,7 +543,7 @@
             <div class="setting-head"><label for="randomness">Случайность</label><span class="setting-value" id="randomnessValue">25%</span></div>
             <input id="randomness" type="range" min="0" max="100" value="25">
           </div>
-          <p class="setting-note">Настройки вступят в силу, когда книга будет открыта.</p>
+          <p class="setting-note" id="settingNote">Автоперелистывание выключено.</p>
         </section>
       </div>
     </header>
@@ -575,6 +607,7 @@
     const settingsToggle = document.getElementById("settingsToggle");
     const settingsPanel = document.getElementById("settingsPanel");
     const autoFlip = document.getElementById("autoFlip");
+    const settingNote = document.getElementById("settingNote");
     const interval = document.getElementById("interval");
     const randomness = document.getElementById("randomness");
     let spreadIndex = -1;
@@ -696,7 +729,12 @@
       document.getElementById("randomnessValue").textContent = `${randomness.value}%`;
       scheduleFlip();
     });
-    autoFlip.addEventListener("change", scheduleFlip);
+    autoFlip.addEventListener("change", () => {
+      settingNote.textContent = autoFlip.checked
+        ? "Автоперелистывание включено."
+        : "Автоперелистывание выключено.";
+      scheduleFlip();
+    });
   </script>
 </body>
 </html>
